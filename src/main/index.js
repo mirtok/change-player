@@ -6,23 +6,21 @@ const { autoUpdater } = require('electron-updater');
 
 const feedUrl = `http://127.0.0.1:5500/win32`; // 更新包位置
 
-/**
- * Set `__static` path to static files in production
- * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-static-assets.html
- */
+
+
 if (process.env.NODE_ENV !== 'development') {
     global.__static = require('path').join(__dirname, '/static').replace(/\\/g, '\\\\')
 }
+
 
 let mainWindow
 const winURL = process.env.NODE_ENV === 'development'
     ? `http://localhost:9080`
     : `file://${__dirname}/index.html`
 
+
+
 function createWindow() {
-    /**
-     * Initial window options
-     */
     mainWindow = new BrowserWindow({
         height: 600,
         useContentSize: true,
@@ -85,16 +83,13 @@ function createWindow() {
     const openDialog = new OpenDialog();
     openDialog.init()
 
-    // 初始化系统托盘
-    // createTray()
-
     require('./api/express')
 
 
     // 主进程监听渲染进程传来的信息
     ipcMain.on('update', (e, arg) => {
         console.log("update");
-        checkForUpdates();
+        checkForUpdates(); // 监听更新
     });
 
 }
@@ -155,7 +150,7 @@ let checkForUpdates = () => {
 
 // 主进程主动发送消息给渲染进程函数
 function sendUpdateMessage(message, data) {
-    console.log({ message, data });
+    // console.log({ message, data });
     mainWindow.webContents.send('message', { message, data });
 }
 

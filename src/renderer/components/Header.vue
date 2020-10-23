@@ -42,31 +42,23 @@
         </div>
         <!-- middle -->
         <div class="middle" >
-           <div class="search-wrap"  @click.stop="showWords">
-                <el-input
-                placeholder="搜索音乐,视频"
-                v-model="input"
-                size="mini"
-                suffix-icon="fa fa-search"
-                clearable
-                @input="searchVioAdi"
-            >
-            </el-input>
+           <div class="search-wrap">
+               <div @click.stop="searchVioAdi">
+                    <el-input placeholder="搜索音乐" v-model="input" size="mini" suffix-icon="fa fa-search" @input="changeInput" />               
+                </div>
             <transition name="router" mode="out-in">
-                <div class="main-content"  v-if="isShowWords">
-                    <ul class="menu-word">
+                <div class="main-content" v-if="isShowWords">
+                    <ul class="menu-word" ref="myHotWrap" v-loading="isLoading">
                         <p class="word-title">热搜榜</p>
-                        <li v-for="(item, index) in 20" :key="index" @click.stop="serachItem(item)">
+                        <li v-for="(item, index) in recomList" :key="index" @click.stop="serachItem(item)">
                             <span :class="{'word-index': true, 'is-hot': index < 3}">{{index + 1}}</span>
                             <div class="word-content">
                                 <div class="top-content">
-                                    <span class="title">新说唱</span>
-                                    <span class="count">21654165</span>
-                                    <i class="fa fa-sign-language"></i>
+                                    <span class="title">{{item.searchWord}}</span>
+                                    <span class="count">{{item.score}}</span>
+                                    <i class="fa fa-sign-language" v-if="index < 3"></i>
                                 </div>
-                                <div class="lack-content">
-                                    让这迫歌声跨越月仅传达于你吧
-                                </div>
+                                <div class="lack-content">{{item.content}}</div>
                             </div>
                         </li>
                     </ul>
@@ -76,11 +68,7 @@
         </div>
         <!-- right -->
         <div class="right">
-            <!-- <span
-      class="fa fa-language"
-      :title="$t('header.lang')"
-      @click="changeLang"
-      ></span> -->
+            <!-- <span class="fa fa-language" :title="$t('header.lang')" @click="changeLang"></span> -->
             <span
                 @click="setAlwaysOnTop(true)"
                 v-if="!isAlwaysOnTop"
@@ -186,6 +174,8 @@
 </template>
 
 <script>
+import { Loading } from 'element-ui';
+import {getHotDetail,getSearchSuggest} from '@/request/api'
 import WindowUtil from '../api/window'
 import { mapGetters, mapMutations } from 'vuex'
 import { remote, shell } from 'electron'
@@ -201,8 +191,6 @@ export default {
             isMaxed: false,
             // 是否显示左上角的菜单
             isShowMenu: false,
-            //是否显示搜索栏联想词
-            isShowWords: false,
             // 当前时间
             time: null,
             // 是否显示历史记录
@@ -214,7 +202,13 @@ export default {
             // 是否显示关于页面
             showAbout: false,
             // 搜索关键字
-            input: ''
+            input: '',
+            // 推荐热门列表
+            recomList: [],
+            // Loading
+            isLoading: false,
+            //是否显示搜索栏联想词
+            isShowWords: false,
         }
     },
     mounted() {
@@ -228,12 +222,41 @@ export default {
             'setAlwaysOnTop',
             'setTheme'
         ]),
-        // 监听搜索
-        searchVioAdi(value) {
-            connect.$emit('searchInfo', value)
+        // 获取监听
+        getHotDetailList(){
+            this.isLoading = true;
+            getHotDetail().then(res => {
+                this.isLoading = false;
+                this.recomList = res;
+            })
         },
+
+        // 监听搜索 显示热搜
+        searchVioAdi(e) {
+            if (!this.isShowWords) {
+                document.body.click()
+            }
+
+            this.isShowWords = !this.isShowWords
+            connect.$emit('searchClick', e);
+            this.$nextTick(()=>{
+                this.getHotDetailList();
+            })
+        },
+        // 控制video
         serachItem(item){
-            console.log(item)
+            this.input = item.searchWord;
+            connect.$emit('searchInfo', item);
+        },
+
+        // 监听search值变化
+        changeInput(){
+            const keywords =  this.input.trim()
+            if(!!keywords){
+                getSearchSuggest({keywords}).then(res=>{
+                    console.log(res)
+                })
+            }
         },
         // 初始化监听器
         initListener() {
@@ -272,15 +295,6 @@ export default {
             }
             // 隐藏左上角的菜单
             this.isShowMenu = !this.isShowMenu
-        },
-        //生成联想词
-        showWords(){
-             // 触发一次点击是因为可能还有其他的菜单在显示，此时需要隐藏其他菜单
-            if (!this.isShowWords) {
-                document.body.click()
-            }
-            // 隐藏左上角的菜单
-            this.isShowWords = !this.isShowWords;
         },
         onClick() {
             this.isShowMenu = false
@@ -421,11 +435,9 @@ export default {
         -webkit-app-region: drag;
         flex: 1;
         height: 100%;
-        margin: 0 10px;
         display: flex;
         align-items: center;
         justify-content: flex-end;
-        padding-right: 100px;
         .el-input {
             width: 200px;
             -webkit-app-region: none;
@@ -576,10 +588,11 @@ export default {
         cursor: pointer;
     }
     .right {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
         position: relative;
+        width: 300px;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
         span {
             height: 36px;
             width: 36px;

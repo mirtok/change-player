@@ -2,7 +2,8 @@
 dist/
 release/
 node_modules/
-npm-debug.log
-npm-debug.log.*
 thumbs.db
 !.gitkeep
+*.log
+.idea
+.vscode

@@ -8,7 +8,7 @@ import './element-custom/index.css'
 import './font-awesome-4.7.0/css/font-awesome.css'
 import './base.css'
 
-import { MessageBox, Col, Row ,Input,Icon} from 'element-ui'
+import { MessageBox, Col, Row ,Input,Icon,Loading} from 'element-ui'
 
 
 Vue.prototype.$prompt = MessageBox.prompt;
@@ -17,6 +17,7 @@ Vue.use(Col)
 Vue.use(Row)
 Vue.use(Input)
 Vue.use(Icon)
+Vue.use(Loading)
 
 
 import App from './App'
@@ -43,7 +44,8 @@ Vue.component('About', About)
 Vue.component('FileInfo', FileInfo)
 
 if (!process.env.IS_WEB) Vue.use(require('vue-electron'))
-Vue.http = Vue.prototype.$http = axios
+
+Vue.prototype.$http = axios
 Vue.config.productionTip = false
 
 import { ipcRenderer } from 'electron'
@@ -59,6 +61,8 @@ ipcRenderer.on('close', () => {
     }
 })
 
+// 解决警告
+process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true'
 
 
 new Vue({

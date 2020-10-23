@@ -3,7 +3,7 @@
         <!-- 歌曲列表 -->
         <template v-if="isSearch"> 
             <div class="search-wrap" :style="{color: theme.textColor}">
-                
+                <ResourceList/>
             </div> 
         </template>
         <!-- 播放文件 -->
@@ -73,6 +73,8 @@
 
 <script>
 import { mapGetters, mapMutations, mapActions } from 'vuex'
+import ResourceList from './resourceList.vue'
+
 import OpenDialog from '../api/OpenDialog'
 import connect from '../api/bus.js'
 import Mousetrap from 'mousetrap'
@@ -90,6 +92,9 @@ const { Menu } = remote
 
 export default {
     name: 'my-video',
+    components:{
+        ResourceList
+    },
     data() {
         return {
             // 是否显示文件菜单
@@ -141,7 +146,7 @@ export default {
             connect.$on('openUrl', () => {
                 this.openUrl()
             })
-            connect.$on('searchInfo', (value) => {
+            connect.$on('searchClick', (value) => {
                 this.isSearch = true
             })
         },
