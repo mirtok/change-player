@@ -88,7 +88,7 @@ ul{
 }
 ::-webkit-scrollbar-track-piece
 {
-    background-color: #CCCCCC;
+    background-color: #eeeeee;
     -webkit-border-radius: 6px;
 }
 ::-webkit-scrollbar-thumb:vertical
@@ -99,8 +99,8 @@ ul{
 }
 ::-webkit-scrollbar-thumb:horizontal
 {
-    width: 5px;
-    background-color: #CCCCCC;
+    width: 3px;
+    background-color: #999999;
     -webkit-border-radius: 6px;
 }
 

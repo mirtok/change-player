@@ -8,7 +8,7 @@ import './element-custom/index.css'
 import './font-awesome-4.7.0/css/font-awesome.css'
 import './base.css'
 
-import { MessageBox, Col, Row ,Input,Icon,Loading} from 'element-ui'
+import { MessageBox, Col, Row ,Input,Icon,Loading,Card,Divider,InfiniteScroll,Avatar} from 'element-ui'
 
 
 Vue.prototype.$prompt = MessageBox.prompt;
@@ -17,7 +17,11 @@ Vue.use(Col)
 Vue.use(Row)
 Vue.use(Input)
 Vue.use(Icon)
+Vue.use(Card)
+Vue.use(Divider)
+Vue.use(Avatar)
 Vue.use(Loading)
+Vue.use(InfiniteScroll)
 
 
 import App from './App'

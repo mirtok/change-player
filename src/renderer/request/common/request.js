@@ -1,6 +1,6 @@
 import axios from 'axios';
 import baseUrl from './baseURL'
-import {dialog} from 'electron'
+import {remote} from 'electron'
 
 /**
  * 构建axios实例
@@ -35,8 +35,9 @@ instance.interceptors.response.use(
             }else if(res.result){
                 return res.result
             }
+            return res
 		} else {
-            dialog.showMessageBox({
+            remote.dialog.showMessageBox({
                 type: 'error',
                 title: 'error',
                 message: res.code
@@ -44,7 +45,7 @@ instance.interceptors.response.use(
 		}
 	},
 	error => {
-        dialog.showMessageBox({
+        remote.dialog.showMessageBox({
             type: 'error',
             title: 'error',
             message: "数据处理超时"

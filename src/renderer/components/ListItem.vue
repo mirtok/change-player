@@ -42,6 +42,7 @@
 import { mapGetters, mapMutations, mapActions } from "vuex";
 import fs from "fs";
 import { formatTime } from "../api/util";
+import connect from '../api/bus.js'
 
 export default {
   name: "list-item",
@@ -103,6 +104,7 @@ export default {
         return;
       }
       this.setplaying();
+      connect.$emit('closeSearchView')
     },
     contextmenu(){
       this.$emit('contextmenu')

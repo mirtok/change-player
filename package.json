@@ -1,7 +1,7 @@
 {
   "name": "player",
   "version": "0.0.15",
-  "author": "c10342 <1376023740@qq.com>",
+  "author": "lxiang <2528308183@qq.com>",
   "description": "音视频播放器",
   "license": null,
   "main": "./dist/electron/main.js",
@@ -18,9 +18,9 @@
   },
   "build": {
     "productName": "player",
-    "appId": "lin_player",
+    "appId": "li_player",
     "directories": {
-      "output": "release"
+      "output": "build/pack"
     },
     "files": [
       "dist/electron/**/*"

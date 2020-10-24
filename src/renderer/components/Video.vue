@@ -1,78 +1,61 @@
 <template>
-    <div class="video-container" @contextmenu="contextmenu">
-        <!-- 歌曲列表 -->
-        <template v-if="isSearch"> 
-            <div class="search-wrap" :style="{color: theme.textColor}">
-                <ResourceList/>
-            </div> 
-        </template>
-        <!-- 播放文件 -->
-        <template v-else>
-            <transition name="router" mode="out-in">
-                <FileInfo
-                    @click="isShowInfo = false"
-                    :isShow="isShowInfo"
-                    :video="videoInfo"
-                />
-            </transition>
-            <div class="message">
-                <p>{{ speedMsg }}</p>
-                <p>{{ volumeMsg }}</p>
-                <p>{{ playModeMsg }}</p>
-            </div>
+<div class="video-container" @contextmenu="contextmenu">
+    <!-- 歌曲列表 -->
+    <template v-if="isSearch">
+        <div class="search-wrap" :style="{color: theme.textColor}">
+            <ResourceList />
+        </div>
+    </template>
+    <!-- 播放文件 -->
+    <template v-else>
+        <transition name="router" mode="out-in">
+            <FileInfo @click="isShowInfo = false" :isShow="isShowInfo" :video="videoInfo" />
+        </transition>
+        <div class="message">
+            <p>{{ speedMsg }}</p>
+            <p>{{ volumeMsg }}</p>
+            <p>{{ playModeMsg }}</p>
+        </div>
 
-            <div
-                @click="changePlayingMode"
-                v-show="currentVideo"
-                id="dplayer"
-                class="my-video"
-            ></div>
+        <div @click="changePlayingMode" v-show="currentVideo" id="dplayer" class="my-video"></div>
 
-            <div v-show="!currentVideo" class="my-video"></div>
+        <div v-show="!currentVideo" class="my-video"></div>
 
-            <div
-                :style="{ 'animation-play-state': animationPlayState }"
-                @click="changePlayingMode"
-                v-show="isMusic && currentVideo"
-                class="music-bg"
-            ></div>
-            <!-- 打开文件 -->
-            <div
-                :style="{
+        <div :style="{ 'animation-play-state': animationPlayState }" @click="changePlayingMode" v-show="isMusic && currentVideo" class="music-bg"></div>
+
+        <!-- 打开文件 -->
+        <div :style="{
                     color: theme.textColor,
                     border: `1px solid ${theme.textColor}`
-                }"
-                class="open-file"
-                v-if="!currentVideo"
-            >
-                <div class="flexrowcenter" @click="openFile">
-                    <span class="fa fa-folder-open-o"></span>
-                    <span>{{ $t('common.openFile') }}</span>
-                </div>
-                <span @click.stop="showMenu" class="fa fa-angle-down"></span>
-                <transition name="router" mode="out-in">
-                    <ul
-                        :style="{ 'background-color': theme.bgColor }"
-                        v-if="isShowFileMenu"
-                        class="my-file"
-                    >
-                        <li :class="theme.hover" @click="openFolder">
-                            <span class="fa fa-file-video-o"></span>
-                            {{ $t('common.openFolder') }}
-                        </li>
-                        <li :class="theme.hover" @click="openUrl">
-                            <span class="fa fa-link"></span>
-                            {{ $t('common.openUrl') }}
-                        </li>
-                    </ul>
-                </transition>
+                }" class="open-file" v-if="!currentVideo">
+            <div class="flexrowcenter" @click="openFile">
+                <span class="fa fa-folder-open-o"></span>
+                <span>{{ $t('common.openFile') }}</span>
             </div>
-        </template>
-    </div>
+            <span @click.stop="showMenu" class="fa fa-angle-down"></span>
+            <transition name="router" mode="out-in">
+                <ul :style="{ 'background-color': theme.bgColor }" v-if="isShowFileMenu" class="my-file">
+                    <li :class="theme.hover" @click="openFolder">
+                        <span class="fa fa-file-video-o"></span>
+                        {{ $t('common.openFolder') }}
+                    </li>
+                    <li :class="theme.hover" @click="openUrl">
+                        <span class="fa fa-link"></span>
+                        {{ $t('common.openUrl') }}
+                    </li>
+                </ul>
+            </transition>
+        </div>
+    </template>
+</div>
 </template>
 
 <script>
-import { mapGetters, mapMutations, mapActions } from 'vuex'
+import {
+    mapGetters,
+    mapMutations,
+    mapActions
+} from 'vuex'
 import ResourceList from './resourceList.vue'
 
 import OpenDialog from '../api/OpenDialog'
@@ -81,18 +64,27 @@ import Mousetrap from 'mousetrap'
 import path from 'path'
 import 'DPlayer/dist/DPlayer.min.css'
 import DPlayer from 'DPlayer'
-import { musicReg } from '../api/util'
-import { remote } from 'electron'
+import {
+    musicReg
+} from '../api/util'
+import {
+    remote
+} from 'electron'
 import fs from 'fs'
-import { playOrderList, volumePercentList } from '../config'
+import {
+    playOrderList,
+    volumePercentList
+} from '../config'
 
 const openDialog = new OpenDialog()
 
-const { Menu } = remote
+const {
+    Menu
+} = remote
 
 export default {
     name: 'my-video',
-    components:{
+    components: {
         ResourceList
     },
     data() {
@@ -114,7 +106,7 @@ export default {
             // 文件信息
             videoInfo: null,
             // 判断是否输入了关键字
-            isSearch: false
+            isSearch: false,
         }
     },
     methods: {
@@ -147,7 +139,13 @@ export default {
                 this.openUrl()
             })
             connect.$on('searchClick', (value) => {
-                this.isSearch = true
+                this.isSearch = true;
+                this.$nextTick(() => {
+                    connect.$emit('searchInfo', value)
+                });
+            })
+            connect.$on('closeSearchView', () => {
+                this.isSearch = false;
             })
         },
         // 移除事件监听
@@ -214,13 +212,13 @@ export default {
                 case 1:
                     this.setCurrentVideo(null)
                     break
-                // 单个循环
+                    // 单个循环
                 case 2:
                     this.$nextTick(() => {
                         this.setPlaying(true)
                     })
                     break
-                // 循环播放列表
+                    // 循环播放列表
                 case 3:
                     // 当前视频索引是最后一个
                     if (this.videoList.length - 1 == this.currentVideoIndex) {
@@ -232,7 +230,7 @@ export default {
                         this.setCurrentVideoIndex(index)
                     }
                     break
-                // 顺序播放
+                    // 顺序播放
                 case 4:
                     // 当前视频索引是最后一个
                     if (this.videoList.length - 1 == this.currentVideoIndex) {
@@ -244,8 +242,9 @@ export default {
                         this.setCurrentVideoIndex(index)
                     }
                     break
-                // 随机播放
+                    // 随机播放
                 case 5:
+
                     // 当播放列表中只有一个视频
                     if (this.videoList.length <= 1) {
                         this.$nextTick(() => {
@@ -270,7 +269,7 @@ export default {
         },
         // 加载视频的时候发生错误
         error() {
-            console.log('error')
+            console.log("error")
         },
         // 初始化快捷键
         initGlobalShortcut() {
@@ -288,12 +287,14 @@ export default {
         // 打开网络地址
         openUrl() {
             this.$prompt(this.$t('common.enterNetworkUrl'), {
-                confirmButtonText: this.$t('common.sureBtn'),
-                cancelButtonText: this.$t('common.cancelBtn'),
-                inputValidator: this.inputValidator,
-                inputErrorMessage: this.$t('common.errorNetworkUrl')
-            })
-                .then(({ value }) => {
+                    confirmButtonText: this.$t('common.sureBtn'),
+                    cancelButtonText: this.$t('common.cancelBtn'),
+                    inputValidator: this.inputValidator,
+                    inputErrorMessage: this.$t('common.errorNetworkUrl')
+                })
+                .then(({
+                    value
+                }) => {
                     openDialog.openUrl(value)
                 })
                 .catch((e) => {
@@ -319,6 +320,7 @@ export default {
             this.dp.on('ended', this.ended)
             this.dp.on('error', this.error)
             this.dp.volume(this.volumePercent)
+
         },
         // 双击退出全屏
         handelDBClick() {
@@ -389,11 +391,9 @@ export default {
                     })
                 }
             })
-            let contextMenuTemplate = [
-                {
+            let contextMenuTemplate = [{
                     label: this.$t('common.open'),
-                    submenu: [
-                        {
+                    submenu: [{
                             label: this.$t('common.openFile'),
                             click: () => {
                                 openDialog.openFile()
@@ -418,8 +418,7 @@ export default {
                 },
                 {
                     label: this.$t('common.winRoof'),
-                    submenu: [
-                        {
+                    submenu: [{
                             label: this.$t('common.never'),
                             type: 'checkbox',
                             checked: !this.isAlwaysOnTop,
@@ -458,11 +457,10 @@ export default {
                     submenu: [
                         ...voiceArr,
                         {
-                            label: isother
-                                ? `${this.$t('common.other')}(${Math.round(
+                            label: isother ?
+                                `${this.$t('common.other')}(${Math.round(
                                       this.volumePercent * 100
-                                  )}%)`
-                                : this.$t('common.other'),
+                                  )}%)` : this.$t('common.other'),
                             type: 'checkbox',
                             checked: isother
                         },
@@ -485,11 +483,9 @@ export default {
                 }
             ]
             if (this.currentVideo) {
-                let addMenu = [
-                    {
-                        label: this.isPlaying
-                            ? this.$t('common.suspend')
-                            : this.$t('common.play'),
+                let addMenu = [{
+                        label: this.isPlaying ?
+                            this.$t('common.suspend') : this.$t('common.play'),
                         click: () => {
                             this.setPlaying(!this.isPlaying)
                         }
@@ -501,9 +497,8 @@ export default {
                 contextMenuTemplate.unshift(...addMenu)
 
                 contextMenuTemplate.splice(4, 0, {
-                    label: this.isFullScreen
-                        ? this.$t('common.exitScreen')
-                        : this.$t('common.fullScreen'),
+                    label: this.isFullScreen ?
+                        this.$t('common.exitScreen') : this.$t('common.fullScreen'),
                     click: () => {
                         this.setFullScreen(!this.isFullScreen)
                     }
@@ -519,7 +514,9 @@ export default {
             }
             let m = Menu.buildFromTemplate(contextMenuTemplate)
             Menu.setApplicationMenu(m)
-            m.popup({ window: remote.getCurrentWindow() })
+            m.popup({
+                window: remote.getCurrentWindow()
+            })
         }
     },
     mounted() {
@@ -614,21 +611,24 @@ export default {
                         const index = this.videoList.findIndex(
                             (i) => i.id == newVal.id
                         )
-                        // 设置视频的索引
-                        this.setCurrentVideoIndex(index)
 
-                        if (this.dp) {
-                            this.initDplayer()
+                        // 设置视频的索引
+                        try {
+                            this.setCurrentVideoIndex(index)
+                            if (this.dp) {
+                                this.initDplayer()
+                            }
+                        } catch (e) {
+
                         }
+
                         // 获取后缀名
                         let extname = path.extname(newVal.src)
                         this.isMusic = musicReg.test(extname)
+
                         // 切换视频,校验文件是本地文件还是网络文件
-                        const url = this.inputValidator(newVal.src)
-                            ? newVal.src
-                            : `http://localhost:6789/video?video=${encodeURIComponent(
-                                  newVal.src
-                              )}`
+                        const url = this.inputValidator(newVal.src) ?
+                            newVal.src : `http://localhost:6789/video?video=${encodeURIComponent(newVal.src )}`
                         this.dp.switchVideo({
                             url
                         })
@@ -706,6 +706,7 @@ export default {
 .video-container {
     flex: 1;
     position: relative;
+
     .message {
         position: absolute;
         top: 10px;
@@ -714,8 +715,9 @@ export default {
         color: #ffffff;
     }
 }
+
 /******************搜索歌曲***********************/
-.search-wrap{
+.search-wrap {
     width: 100%;
     height: 100%;
 }
@@ -726,6 +728,7 @@ export default {
     height: 100%;
     vertical-align: top;
 }
+
 .music-bg {
     position: absolute;
     top: 50%;
@@ -741,6 +744,7 @@ export default {
     animation-iteration-count: infinite;
     animation-timing-function: linear;
 }
+
 .open-file {
     position: absolute;
     top: 50%;
@@ -754,6 +758,7 @@ export default {
     align-items: center;
     justify-content: space-around;
     padding: 5px;
+
     .my-file {
         z-index: -1;
         position: absolute;
@@ -761,6 +766,7 @@ export default {
         left: 0;
         width: 100%;
         border-radius: 5px;
+
         &:before {
             content: '';
             height: 0;
@@ -771,32 +777,39 @@ export default {
             border: 5px solid transparent;
             border-bottom-color: greenyellow;
         }
-        > li {
+
+        >li {
             width: 100%;
             height: 40px;
             padding: 10px 15px;
             color: #878788;
             cursor: pointer;
+
             &:hover {
                 border-radius: 5px;
                 color: #5dee00;
             }
         }
     }
-    > div {
+
+    >div {
         cursor: pointer;
+
         span:nth-child(1) {
             padding-right: 10px;
         }
+
         &:hover {
             color: #5dee00;
         }
     }
-    > span {
+
+    >span {
         font-size: 20px;
         border-left: 1px solid #818181;
         padding-left: 10px;
         cursor: pointer;
+
         &:hover {
             color: #5dee00;
         }
@@ -807,6 +820,7 @@ export default {
     from {
         transform: rotate(0deg);
     }
+
     to {
         transform: rotate(360deg);
     }

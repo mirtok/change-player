@@ -16,4 +16,17 @@ export const getSearchSuggest = (params) => instance.get(`search/suggest`,{param
  * 获取搜索list
  * @param {Object} params 
  */
-export const getCloudSearchList = (params) => instance.get(`cloudsearch`,{params});
+export const getCloudSearchList = (params) => instance.get(`search`,{params});
+
+/**
+ * 获取音乐详细信息
+ * @param {Object} params 
+ */
+export const getCloudSongDetail = (params) => instance.get(`/song/detail`,{params});
+
+
+/**
+ * 获取音乐 url
+ * @param {Object} params 
+ */
+export const getCloudSongUrl = (params) => instance.get(`song/url`,{params});
